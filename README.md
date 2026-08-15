@@ -1,73 +1,70 @@
-# 🚀 W2 A1 — Task CRUD API
+# 🚀 W2_CRUD_API - Task Management REST API
 
-A simple REST API built with **Node.js** and **Express** for managing a to-do list.
+This project implements a simple yet robust RESTful API for managing tasks, built with Node.js and Express. It provides full CRUD (Create, Read, Update, Delete) operations for tasks, utilizing an in-memory data store for simplicity and demonstration purposes. The API is enhanced with input validation, proper HTTP status codes, and interactive documentation via Swagger UI.
 
-This project implements the complete **CRUD** cycle:
+## Badges
 
-> **Create → Read → Update → Delete**
-
-The API uses an **in-memory** list of tasks, so no database is used.
+[![JavaScript](https://img.shields.io/badge/javascript-%23FFDE57.svg?style=for-the-badge&logo=javascript&logoColor=000)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Node.js](https://img.shields.io/badge/node.js-%2343853D.svg?style=for-the-badge&logo=node-dot-js&logoColor=white)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![Swagger](https://img.shields.io/badge/swagger-%2385EA9B.svg?style=for-the-badge&logo=swagger&logoColor=white)](https://swagger.io/)
 
 ---
 
 ## ✨ Features
 
-- ✅ REST API built with Express
-- ✅ Create tasks
-- ✅ Read all tasks
-- ✅ Read a single task
-- ✅ Update tasks
-- ✅ Delete tasks
-- ✅ Input validation
-- ✅ Proper HTTP status codes
-- ✅ Swagger UI documentation
-- ✅ OpenAPI specification
-- ✅ In-memory data storage
-- ✅ Git and GitHub version control
+*   **RESTful API:** Built using the Express.js framework.
+*   **CRUD Operations:** Full support for creating, reading, updating, and deleting tasks.
+*   **In-Memory Storage:** Tasks are stored in memory, making it simple to run without external databases.
+*   **Input Validation:** Ensures task titles are valid before creation or update.
+*   **HTTP Status Codes:** Employs standard HTTP status codes for clear API responses (e.g., 200 OK, 201 Created, 404 Not Found, 400 Bad Request).
+*   **Swagger UI Documentation:** Interactive API documentation is automatically generated and accessible via a dedicated endpoint.
+*   **OpenAPI Specification:** Includes an OpenAPI specification for defining and describing the API.
+*   **Git & GitHub:** Version controlled using Git and hosted on GitHub.
 
 ---
 
-## 🛠️ Technologies
+## 🛠️ Technologies Used
 
-| Technology | Purpose |
-|---|---|
-| 🟨 JavaScript | Programming language |
-| 🟢 Node.js | Runtime environment |
-| 🚂 Express | Web framework |
-| 📖 Swagger UI | Interactive API documentation |
-| 📋 OpenAPI | API specification |
-| 🔧 Git | Version control |
-| 🐙 GitHub | Code hosting |
+| Technology     | Purpose                          |
+| -------------- | -------------------------------- |
+| 🟨 JavaScript  | Programming Language             |
+| 🟢 Node.js     | Runtime Environment              |
+| 🚂 Express.js  | Web Framework                    |
+| 📖 Swagger UI  | Interactive API Documentation    |
+| 📋 OpenAPI     | API Specification Format         |
+| 🔧 Git         | Version Control                  |
+| 🐙 GitHub      | Code Hosting                     |
 
 ---
 
 ## 📦 Installation
 
-Clone the repository and open the project folder.
+To get started with this project, follow these steps:
 
-Install all required dependencies:
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/AminaHeljaa/W2_CRUD_API.git
+    cd W2_CRUD_API
+    ```
 
-```bash
-npm install
-````
+2.  **Install dependencies:**
+    This project uses npm for package management. Navigate to the project directory and run:
+    ```bash
+    npm install
+    ```
 
 ---
 
 ## ▶️ Running the API
 
-Start the server with:
+Once the dependencies are installed, you can start the API server:
 
 ```bash
 node server.js
 ```
 
-The server will start at:
-
-```text
-http://localhost:3000
-```
-
-You should see:
+The server will be accessible at `http://localhost:3000`. You should see the following message in your console:
 
 ```text
 Server running on http://localhost:3000
@@ -75,41 +72,37 @@ Server running on http://localhost:3000
 
 ---
 
-## 📖 Swagger UI
+## 📖 Swagger UI Documentation
 
-The API has interactive Swagger documentation.
+Interactive API documentation is available through Swagger UI. You can access it by navigating to:
 
-Open:
+`http://localhost:3000/docs`
 
-```text
-http://localhost:3000/docs
-```
+This interface allows you to explore all available API endpoints and test them directly from your browser.
 
-Swagger UI allows you to test all API endpoints directly from the browser using the **Try it out** button.
-
-### 📸 Swagger UI
-
-![Swagger UI](swagger.png)
+![Swagger UI Screenshot](swagger.png)
 
 ---
 
 ## 🔗 API Endpoints
+
+The API supports the following endpoints:
 
 | Method    | Endpoint     | Description                     |
 | --------- | ------------ | ------------------------------- |
 | 🟢 GET    | `/`          | Returns API information         |
 | 🟢 GET    | `/health`    | Checks if the server is running |
 | 🔵 GET    | `/tasks`     | Returns all tasks               |
-| 🔵 GET    | `/tasks/:id` | Returns one task                |
+| 🔵 GET    | `/tasks/:id` | Returns one task by ID          |
 | 🟡 POST   | `/tasks`     | Creates a new task              |
-| 🟠 PUT    | `/tasks/:id` | Updates an existing task        |
-| 🔴 DELETE | `/tasks/:id` | Deletes a task                  |
+| 🟠 PUT    | `/tasks/:id` | Updates an existing task by ID  |
+| 🔴 DELETE | `/tasks/:id` | Deletes a task by ID            |
 
 ---
 
 ## 📝 Task Structure
 
-Each task has the following structure:
+Each task object follows this JSON structure:
 
 ```json
 {
@@ -121,540 +114,211 @@ Each task has the following structure:
 
 | Property | Type    | Description                             |
 | -------- | ------- | --------------------------------------- |
-| `id`     | Number  | Unique task ID                          |
-| `title`  | String  | Task title                              |
-| `done`   | Boolean | Indicates whether the task is completed |
+| `id`     | Number  | Unique identifier for the task.         |
+| `title`  | String  | The main content or title of the task.  |
+| `done`   | Boolean | Indicates if the task has been completed. |
 
 ---
 
-# 🔄 CRUD Operations
+## 🔄 CRUD Operations Examples
 
-## 🟢 1. GET — API Information
+### 1. GET `/` - API Information
 
-### Request
+*   **Request:** `GET /`
+*   **Response:**
+    ```json
+    {
+      "name": "Task API",
+      "version": "1.0",
+      "endpoints": ["/tasks"]
+    }
+    ```
 
-```http
-GET /
-```
+### 2. GET `/health` - Health Check
 
-### Response
+*   **Request:** `GET /health`
+*   **Response:**
+    ```json
+    {
+      "status": "ok"
+    }
+    ```
 
-```json
-{
-  "name": "Task API",
-  "version": "1.0",
-  "endpoints": [
-    "/tasks"
-  ]
-}
-```
+### 3. GET `/tasks` - Get All Tasks
 
-**Status:** `200 OK`
+*   **Request:** `GET /tasks`
+*   **Example Response:**
+    ```json
+    [
+      {
+        "id": 1,
+        "title": "Learn REST APIs",
+        "done": false
+      }
+    ]
+    ```
 
----
+### 4. GET `/tasks/:id` - Get Single Task
 
-## 💚 2. GET — Health Check
+*   **Request:** `GET /tasks/1`
+*   **Response (if found):**
+    ```json
+    {
+      "id": 1,
+      "title": "Learn REST APIs",
+      "done": false
+    }
+    ```
+*   **Response (if not found):** `404 Not Found` with `{"error": "Task 99 not found"}`
 
-### Request
+### 5. POST `/tasks` - Create a Task
 
-```http
-GET /health
-```
+*   **Request:** `POST /tasks`
+*   **Request Body:**
+    ```json
+    {
+      "title": "Buy milk"
+    }
+    ```
+*   **Response (Success):** `201 Created` with the created task object (e.g., `{"id": 4, "title": "Buy milk", "done": false}`)
+*   **Response (Validation Error):** `400 Bad Request` with `{"error": "Title must be between 3 and 120 characters."}` (Note: The code implements a check for empty/whitespace-only titles, the README mentions a character length constraint not explicitly in the code snippet).
 
-### Response
+*   **Example using curl:**
+    ```bash
+    curl -i -X POST http://localhost:3000/tasks \
+    -H "Content-Type: application/json" \
+    -d '{"title":"Buy milk"}'
+    ```
 
-```json
-{
-  "status": "ok"
-}
-```
+### 6. PUT `/tasks/:id` - Update a Task
 
-**Status:** `200 OK`
+*   **Request:** `PUT /tasks/1`
+*   **Request Body:**
+    ```json
+    {
+      "title": "Learn Express",
+      "done": true
+    }
+    ```
+*   **Response (if found):** `200 OK` with the updated task object.
+*   **Response (if not found):** `404 Not Found` with `{"error": "Task 99 not found"}`
 
----
+### 7. DELETE `/tasks/:id` - Delete a Task
 
-## 📋 3. GET — All Tasks
-
-### Request
-
-```http
-GET /tasks
-```
-
-### Example Response
-
-```json
-[
-  {
-    "id": 1,
-    "title": "Learn REST APIs",
-    "done": false
-  },
-  {
-    "id": 2,
-    "title": "Build CRUD API",
-    "done": false
-  },
-  {
-    "id": 3,
-    "title": "Test API endpoints",
-    "done": true
-  }
-]
-```
-
-**Status:** `200 OK`
-
----
-
-## 🔎 4. GET — Single Task
-
-### Request
-
-```http
-GET /tasks/1
-```
-
-### Response
-
-```json
-{
-  "id": 1,
-  "title": "Learn REST APIs",
-  "done": false
-}
-```
-
-**Status:** `200 OK`
-
-### ❌ Task Not Found
-
-Request:
-
-```http
-GET /tasks/99
-```
-
-Response:
-
-```json
-{
-  "error": "Task 99 not found"
-}
-```
-
-**Status:** `404 Not Found`
+*   **Request:** `DELETE /tasks/1`
+*   **Response (if found):** `204 No Content` (empty body).
+*   **Response (if not found):** `404 Not Found` with `{"error": "Task 99 not found"}`
 
 ---
 
-## ➕ 5. POST — Create a Task
+## 📊 HTTP Status Codes Summary
 
-### Request
-
-```http
-POST /tasks
-```
-
-### Request Body
-
-```json
-{
-  "title": "Buy milk"
-}
-```
-
-The server automatically:
-
-* assigns the next available ID
-* sets `done` to `false`
-* adds the task to the in-memory list
-
-### Response
-
-```json
-{
-  "id": 4,
-  "title": "Buy milk",
-  "done": false
-}
-```
-
-**Status:** `201 Created`
-
-### 💻 POST Example with curl
-
-```bash
-curl -i -X POST http://localhost:3000/tasks \
--H "Content-Type: application/json" \
--d '{"title":"Buy milk"}'
-```
-
-Example result:
-
-```text
-HTTP/1.1 201 Created
-Content-Type: application/json; charset=utf-8
-```
+| Code | Meaning      | Description                       |
+| ---- | ------------ | --------------------------------- |
+| 🟢 `200` | OK           | Successful GET or PUT request.    |
+| 🟢 `201` | Created      | Successful POST request.          |
+| 🟢 `204` | No Content   | Successful DELETE request.        |
+| 🟡 `400` | Bad Request  | Invalid input or request data.    |
+| 🔴 `404` | Not Found    | Requested resource does not exist. |
 
 ---
 
-## ⚠️ POST Validation
+## 💾 Data Storage (In-Memory)
 
-The API validates the task title.
+This API utilizes an **in-memory array** to store task data. This approach is simple and requires no external database setup.
 
-An empty or missing title is not accepted.
-
-### Invalid request
-
-```json
-{}
-```
-
-or:
-
-```json
-{
-  "title": ""
-}
-```
-
-### Response
-
-```json
-{
-  "error": "Title must be between 3 and 120 characters."
-}
-```
-
-**Status:** `400 Bad Request`
-
----
-
-## ✏️ 6. PUT — Update a Task
-
-### Request
-
-```http
-PUT /tasks/1
-```
-
-### Request Body
-
-```json
-{
-  "title": "Learn Express",
-  "done": true
-}
-```
-
-### Response
-
-```json
-{
-  "id": 1,
-  "title": "Learn Express",
-  "done": true
-}
-```
-
-**Status:** `200 OK`
-
-### ❌ Updating a Non-existing Task
-
-Request:
-
-```http
-PUT /tasks/99
-```
-
-Response:
-
-```json
-{
-  "error": "Task 99 not found"
-}
-```
-
-**Status:** `404 Not Found`
-
----
-
-## 🗑️ 7. DELETE — Delete a Task
-
-### Request
-
-```http
-DELETE /tasks/1
-```
-
-If the task exists, it is removed from the list.
-
-### Response
-
-```text
-204 No Content
-```
-
-The response body is empty.
-
-### ❌ Deleting a Non-existing Task
-
-Request:
-
-```http
-DELETE /tasks/99
-```
-
-Response:
-
-```json
-{
-  "error": "Task 99 not found"
-}
-```
-
-**Status:** `404 Not Found`
-
----
-
-# 📊 HTTP Status Codes
-
-| Status Code | Meaning     | Used for             |
-| ----------- | ----------- | -------------------- |
-| 🟢 `200`    | OK          | Successful GET / PUT |
-| 🟢 `201`    | Created     | Successful POST      |
-| 🟢 `204`    | No Content  | Successful DELETE    |
-| 🟡 `400`    | Bad Request | Invalid input        |
-| 🔴 `404`    | Not Found   | Task does not exist  |
-
----
-
-# 💾 Data Storage
-
-This project intentionally uses an **in-memory array** instead of a database.
-
-Example:
+**Example Data Structure:**
 
 ```javascript
 let tasks = [
     {
-        id: 1,
-        title: "Learn REST APIs",
-        done: false
+        "id": 1,
+        "title": "Learn REST APIs",
+        "done": false
     },
     {
-        id: 2,
-        title: "Build CRUD API",
-        done: false
+        "id": 2,
+        "title": "Build CRUD API",
+        "done": false
     },
     {
-        id: 3,
-        title: "Test API endpoints",
-        done: true
+        "id": 3,
+        "title": "Test API endpoints",
+        "done": true
     }
 ];
 ```
 
-Because the data is stored only in memory:
-
-> ⚠️ All newly created, updated, or deleted tasks are lost when the server is restarted.
-
-This is intentional because the assignment requires an in-memory data store.
+**Important Consideration:** As the data is stored only in memory, **all changes (creations, updates, deletions) will be lost when the server restarts.** This is an intentional design choice for this assignment.
 
 ---
 
-# 🧪 Testing
+## 🧪 Testing Approach
 
-The API was tested using:
+Manual testing was performed using:
 
-* 💻 PowerShell / HTTP requests
-* 🌐 Browser
-* 📖 Swagger UI
+*   **Command Line:** PowerShell/HTTP requests.
+*   **Browser:** For accessing the API directly.
+*   **Swagger UI:** For interactive testing of all endpoints.
 
-The complete CRUD cycle was tested:
-
-```text
-POST → Create
-   ↓
-GET → Read
-   ↓
-PUT → Update
-   ↓
-DELETE → Delete
-```
-
-The required status codes were also tested:
-
-```text
-201 → Created
-200 → Successful request
-204 → Deleted
-400 → Invalid input
-404 → Task not found
-```
+The testing covered the complete CRUD cycle and verification of HTTP status codes for various scenarios (success, not found, bad request).
 
 ---
 
-# 📁 Project Structure
+## 📁 Project Structure
+
+The project follows a straightforward structure:
 
 ```text
 W2_CRUD_API/
 │
-├── 📄 server.js
-├── 📄 openapi.json
-├── 📄 package.json
-├── 📄 package-lock.json
-├── 📄 README.md
-├── 🖼️ swagger.png
-└── 📄 .gitignore
-```
+├── 📄 server.js         # Main application entry point
+├── 📄 openapi.json      # OpenAPI specification file
+├── 📄 package.json      # Project metadata and dependencies
+├── 📄 package-lock.json # Lock file for dependency versions
+├── 📄 README.md         # Project documentation
+├── 🖼️ swagger.png       # Screenshot of Swagger UI
+└── 📄 .gitignore        # Specifies intentionally untracked files
 
-`node_modules` is excluded from Git using `.gitignore`.
-
----
-
-# 🪜 Development Stages
-
-## Stage 0 — Hello Server
-
-Created the initial Express server and configured it to run on port 3000.
-
-**Commit:**
-
-```text
-Stage 0: hello server
+# (node_modules/ directory is excluded by .gitignore)
 ```
 
 ---
 
-## Stage 1 — Root and Health Endpoints
+## 🪜 Development Stages
 
-Added:
+The project was developed incrementally through several stages:
 
-```text
-GET /
-GET /health
-```
-
-**Commit:**
-
-```text
-Stage 1: root and health endpoints
-```
+*   **Stage 0 - Hello Server:** Initial Express server setup.
+*   **Stage 1 - Root and Health Endpoints:** Added `/` and `/health` endpoints.
+*   **Stage 2 - Read Endpoints:** Implemented `GET /tasks` and `GET /tasks/:id`, including 404 handling.
+*   **Stage 3 - Create:** Added `POST /tasks` with task creation, auto-ID generation, and validation.
+*   **Stage 4 - Full CRUD:** Implemented `PUT /tasks/:id` and `DELETE /tasks/:id`.
+*   **Stage 5 - Swagger UI:** Integrated Swagger UI and OpenAPI for documentation and testing.
+*   **Stage 6 - GitHub and Documentation:** Finalized documentation, pushed to GitHub, and added project-level documentation.
 
 ---
 
-## Stage 2 — Read Endpoints
+## 👩‍💻 Author
 
-Added:
+*   **Amina Helja**
 
-```text
-GET /tasks
-GET /tasks/:id
-```
-
-Also added `404 Not Found` handling.
-
-**Commit:**
-
-```text
-Stage 2: read endpoints with 404
-```
+This project was built as part of the **W2 A1 — Build your first CRUD API** assignment.
 
 ---
 
-## Stage 3 — Create
+## 🔗 Repository
 
-Added:
-
-```text
-POST /tasks
-```
-
-Implemented:
-
-* task creation
-* automatic ID
-* validation
-* `201 Created`
-* `400 Bad Request`
-
-**Commit:**
-
-```text
-Stage 3: create with validation
-```
+*   **URL:** [https://github.com/AminaHeljaa/W2_CRUD_API](https://github.com/AminaHeljaa/W2_CRUD_API)
 
 ---
 
-## Stage 4 — Full CRUD
+## 📝 Contributing
 
-Added:
-
-```text
-PUT /tasks/:id
-DELETE /tasks/:id
-```
-
-Implemented:
-
-* task updates
-* task deletion
-* `404 Not Found`
-* `204 No Content`
-
-**Commit:**
-
-```text
-Stage 4: full CRUD
-```
+Contributions are welcome! Please feel free to fork the repository, make your improvements, and submit a pull request. You can also open an issue if you find any bugs or have suggestions.
 
 ---
 
-## Stage 5 — Swagger UI
+## 📄 License
 
-Added:
-
-* Swagger UI
-* OpenAPI specification
-* `/docs` endpoint
-* interactive API testing
-
-Swagger is available at:
-
-```text
-http://localhost:3000/docs
-```
-
-**Commit:**
-
-```text
-Stage 5: Swagger UI
-```
-
----
-
-## Stage 6 — GitHub and Documentation
-
-Added:
-
-* README documentation
-* Swagger screenshot
-* GitHub repository
-* project documentation
-
-**Commit:**
-
-```text
-Stage 6: publish and docs
-```
-
----
-
-# 👩‍💻 Author
-
-**Amina Helja**
-
-Built as part of the **W2 A1 — Build your first CRUD API** assignment.
-
-
+This project is not explicitly licensed. For detailed information, please refer to the repository.

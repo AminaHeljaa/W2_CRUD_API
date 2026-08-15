@@ -10,17 +10,17 @@ let tasks = [
     {
         id: 1,
         title: "Learn REST APIs",
-        completed: false
+        done: false
     },
     {
         id: 2,
         title: "Build CRUD API",
-        completed: false
+        done: false
     },
     {
         id: 3,
         title: "Test API endpoints",
-        completed: true
+        done: true
     }
 ];
 
@@ -49,7 +49,7 @@ app.get("/tasks/:id", (req, res) => {
 
     if (!task) {
         return res.status(404).json({
-            error: "Task not found"
+            error: `Task ${id} not found`
         });
     }
 
@@ -57,22 +57,23 @@ app.get("/tasks/:id", (req, res) => {
 });
 
 app.post("/tasks", (req, res) => {
-    const { title, completed = false } = req.body;
+    const { title } = req.body;
 
     if (
         typeof title !== "string" ||
-        title.trim().length < 3 ||
-        title.trim().length > 120
+        title.trim().length === 0
     ) {
         return res.status(400).json({
-            error: "Title must be between 3 and 120 characters."
+            error: "Title is required."
         });
     }
 
     const newTask = {
-        id: tasks.length > 0 ? Math.max(...tasks.map(task => task.id)) + 1 : 1,
+        id: tasks.length > 0
+            ? Math.max(...tasks.map(task => task.id)) + 1
+            : 1,
         title: title.trim(),
-        completed: Boolean(completed)
+        done: false
     };
 
     tasks.push(newTask);
@@ -87,32 +88,32 @@ app.put("/tasks/:id", (req, res) => {
 
     if (!task) {
         return res.status(404).json({
-            error: "Task not found"
+            error: `Task ${id} not found`
         });
     }
 
-    const { title, completed } = req.body;
+    const { title, done } = req.body;
 
     if (
-        typeof title !== "string" ||
-        title.trim().length < 3 ||
-        title.trim().length > 120
+        (title !== undefined &&
+            (typeof title !== "string" ||
+                title.trim().length === 0)) ||
+        (done !== undefined && typeof done !== "boolean")
     ) {
         return res.status(400).json({
-            error: "Title must be between 3 and 120 characters."
+            error: "Invalid task data."
         });
     }
 
-    if (typeof completed !== "boolean") {
-        return res.status(400).json({
-            error: "Completed must be a boolean."
-        });
+    if (title !== undefined) {
+        task.title = title.trim();
     }
 
-    task.title = title.trim();
-    task.completed = completed;
+    if (done !== undefined) {
+        task.done = done;
+    }
 
-    res.json(task);
+    res.status(200).json(task);
 });
 
 app.delete("/tasks/:id", (req, res) => {
@@ -122,16 +123,13 @@ app.delete("/tasks/:id", (req, res) => {
 
     if (taskIndex === -1) {
         return res.status(404).json({
-            error: "Task not found"
+            error: `Task ${id} not found`
         });
     }
 
-    const deletedTask = tasks.splice(taskIndex, 1);
+    tasks.splice(taskIndex, 1);
 
-    res.json({
-        message: "Task deleted successfully",
-        task: deletedTask[0]
-    });
+    res.status(204).send();
 });
 
 app.listen(PORT, () => {

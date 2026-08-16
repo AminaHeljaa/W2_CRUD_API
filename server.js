@@ -1,30 +1,25 @@
 const express = require("express");
 const swaggerUi = require("swagger-ui-express");
 const openapi = require("./openapi.json");
+const db = require("./db");
+
 const app = express();
 
 app.use(express.json());
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapi));
+
 const PORT = 3000;
 
-let tasks = [
-    {
-        id: 1,
-        title: "Learn REST APIs",
-        done: false
-    },
-    {
-        id: 2,
-        title: "Build CRUD API",
-        done: false
-    },
-    {
-        id: 3,
-        title: "Test API endpoints",
-        done: true
-    }
-];
+// Pretvara SQLite 0/1 u JavaScript false/true
+function formatTask(task) {
+    return {
+        id: task.id,
+        title: task.title,
+        done: Boolean(task.done)
+    };
+}
 
+// HOME
 app.get("/", (req, res) => {
     res.json({
         name: "Task API",
@@ -33,20 +28,33 @@ app.get("/", (req, res) => {
     });
 });
 
+// HEALTH
 app.get("/health", (req, res) => {
     res.json({
         status: "ok"
     });
 });
 
+// GET /tasks
 app.get("/tasks", (req, res) => {
-    res.json(tasks);
+    const tasks = db.prepare(`
+        SELECT id, title, done
+        FROM tasks
+        ORDER BY id
+    `).all();
+
+    res.json(tasks.map(formatTask));
 });
 
+// GET /tasks/:id
 app.get("/tasks/:id", (req, res) => {
     const id = Number(req.params.id);
 
-    const task = tasks.find(task => task.id === id);
+    const task = db.prepare(`
+        SELECT id, title, done
+        FROM tasks
+        WHERE id = ?
+    `).get(id);
 
     if (!task) {
         return res.status(404).json({
@@ -54,9 +62,10 @@ app.get("/tasks/:id", (req, res) => {
         });
     }
 
-    res.json(task);
+    res.json(formatTask(task));
 });
 
+// POST /tasks
 app.post("/tasks", (req, res) => {
     const { title } = req.body;
 
@@ -69,23 +78,29 @@ app.post("/tasks", (req, res) => {
         });
     }
 
-    const newTask = {
-        id: tasks.length > 0
-            ? Math.max(...tasks.map(task => task.id)) + 1
-            : 1,
-        title: title.trim(),
-        done: false
-    };
+    const result = db.prepare(`
+        INSERT INTO tasks (title, done)
+        VALUES (?, ?)
+    `).run(title.trim(), 0);
 
-    tasks.push(newTask);
+    const newTask = db.prepare(`
+        SELECT id, title, done
+        FROM tasks
+        WHERE id = ?
+    `).get(result.lastInsertRowid);
 
-    res.status(201).json(newTask);
+    res.status(201).json(formatTask(newTask));
 });
 
+// PUT /tasks/:id
 app.put("/tasks/:id", (req, res) => {
     const id = Number(req.params.id);
 
-    const task = tasks.find(task => task.id === id);
+    const task = db.prepare(`
+        SELECT id, title, done
+        FROM tasks
+        WHERE id = ?
+    `).get(id);
 
     if (!task) {
         return res.status(404).json({
@@ -106,33 +121,52 @@ app.put("/tasks/:id", (req, res) => {
         });
     }
 
-    if (title !== undefined) {
-        task.title = title.trim();
-    }
+    const newTitle =
+        title !== undefined ? title.trim() : task.title;
 
-    if (done !== undefined) {
-        task.done = done;
-    }
+    const newDone =
+        done !== undefined ? done : Boolean(task.done);
 
-    res.status(200).json(task);
+    db.prepare(`
+        UPDATE tasks
+        SET title = ?, done = ?
+        WHERE id = ?
+    `).run(newTitle, newDone ? 1 : 0, id);
+
+    const updatedTask = db.prepare(`
+        SELECT id, title, done
+        FROM tasks
+        WHERE id = ?
+    `).get(id);
+
+    res.status(200).json(formatTask(updatedTask));
 });
 
+// DELETE /tasks/:id
 app.delete("/tasks/:id", (req, res) => {
     const id = Number(req.params.id);
 
-    const taskIndex = tasks.findIndex(task => task.id === id);
+    const task = db.prepare(`
+        SELECT id
+        FROM tasks
+        WHERE id = ?
+    `).get(id);
 
-    if (taskIndex === -1) {
+    if (!task) {
         return res.status(404).json({
             error: `Task ${id} not found`
         });
     }
 
-    tasks.splice(taskIndex, 1);
+    db.prepare(`
+        DELETE FROM tasks
+        WHERE id = ?
+    `).run(id);
 
     res.status(204).send();
 });
 
+// START SERVER
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

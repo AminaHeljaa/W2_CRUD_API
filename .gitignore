@@ -1,3 +1,5 @@
 node_modules/
 tasks.sqbpro
 tasks-backup.db
+.env
+.idea/

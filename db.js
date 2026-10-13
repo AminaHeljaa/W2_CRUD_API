@@ -1,28 +1,35 @@
-const Database = require("better-sqlite3");
 
-const db = new Database("tasks.db");
+require("dotenv").config();
 
+const db = require("./db/pool");
 
-db.prepare(`
-    CREATE TABLE IF NOT EXISTS tasks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        done BOOLEAN NOT NULL DEFAULT 0
-    )
-`).run();
-
-
-const count = db.prepare("SELECT COUNT(*) AS count FROM tasks").get();
-
-if (count.count === 0) {
-    const insert = db.prepare(`
-        INSERT INTO tasks (title, done)
-        VALUES (?, ?)
+async function initializeDatabase() {
+    await db.query(`
+        CREATE TABLE IF NOT EXISTS tasks (
+            id SERIAL PRIMARY KEY,
+            title TEXT NOT NULL,
+            done BOOLEAN NOT NULL DEFAULT FALSE
+        )
     `);
 
-    insert.run("Learn REST APIs", 0);
-    insert.run("Build CRUD API", 0);
-    insert.run("Test API endpoints", 1);
+    const result = await db.query(
+        "SELECT COUNT(*) AS count FROM tasks"
+    );
+
+    if (Number(result.rows[0].count) === 0) {
+        await db.query(`
+            INSERT INTO tasks (title, done)
+            VALUES
+                ('Learn REST APIs', FALSE),
+                ('Build CRUD API', FALSE),
+                ('Test API endpoints', TRUE)
+        `);
+    }
+
+    console.log("PostgreSQL database is ready.");
 }
 
-module.exports = db;
+module.exports = {
+    db,
+    initializeDatabase,
+};

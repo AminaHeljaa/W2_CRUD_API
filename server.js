@@ -1,9 +1,12 @@
 
+require("dotenv").config();
+
 const express = require("express");
 const swaggerUi = require("swagger-ui-express");
 const openapi = require("./openapi.json");
 const { db, initializeDatabase } = require("./db");
 const taskRepository = require("./repositories/postgresTaskRepository");
+const supabase = require("./supabase");
 
 const app = express();
 
@@ -12,6 +15,182 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapi));
 
 const PORT = process.env.PORT || 3000;
 
+// AUTH MIDDLEWARE
+async function authenticateToken(req, res, next) {
+    try {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({
+                error: "Access token required"
+            });
+        }
+
+        const token = authHeader.slice(7).trim();
+
+        if (!token) {
+            return res.status(401).json({
+                error: "Access token required"
+            });
+        }
+
+        const { data, error } = await supabase.auth.getUser(token);
+
+        if (error || !data.user) {
+            return res.status(401).json({
+                error: "Invalid or expired token"
+            });
+        }
+
+        req.user = data.user;
+        req.accessToken = token;
+
+        next();
+    } catch (error) {
+        console.error("Authentication error:", error.message);
+
+        return res.status(500).json({
+            error: "Internal server error."
+        });
+    }
+}
+
+// SIGN UP
+app.post("/auth/signup", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({
+                error: "Email and password are required."
+            });
+        }
+
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password
+        });
+
+        if (error) {
+            return res.status(400).json({
+                error: error.message
+            });
+        }
+
+        return res.status(201).json({
+            message: "User registered successfully.",
+            user: data.user
+        });
+    } catch (error) {
+        console.error("Signup error:", error.message);
+
+        return res.status(500).json({
+            error: "Internal server error."
+        });
+    }
+});
+
+// LOG IN
+app.post("/auth/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({
+                error: "Email and password are required."
+            });
+        }
+
+        const { data, error } =
+            await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+        if (error || !data.session || !data.user) {
+            return res.status(401).json({
+                error: "Invalid login credentials"
+            });
+        }
+
+        return res.status(200).json({
+            message: "Login successful.",
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
+            user: {
+                id: data.user.id,
+                email: data.user.email
+            }
+        });
+    } catch (error) {
+        console.error("Login error:", error.message);
+
+        return res.status(500).json({
+            error: "Internal server error."
+        });
+    }
+});
+
+
+// LOG OUT
+app.post("/auth/logout", authenticateToken, async (req, res) => {
+    try {
+        const response = await fetch(
+            `${process.env.SUPABASE_URL}/auth/v1/logout?scope=global`,
+            {
+                method: "POST",
+                headers: {
+                    apikey: process.env.SUPABASE_KEY,
+                    Authorization: `Bearer ${req.accessToken}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            return res.status(401).json({
+                error: "Unable to log out."
+            });
+        }
+
+        return res.status(204).send();
+    } catch (error) {
+        console.error("Logout error:", error.message);
+
+        return res.status(500).json({
+            error: "Internal server error."
+        });
+    }
+});
+
+
+// PUBLIC INFO
+app.get("/public/info", (req, res) => {
+    res.status(200).json({
+        message: "Welcome stranger! This info is public."
+    });
+});
+
+// PROTECTED PROFILE
+app.get("/protected/profile", authenticateToken, (req, res) => {
+    return res.status(200).json({
+        id: req.user.id,
+        email: req.user.email,
+        created_at: req.user.created_at
+    });
+});
+
+// PROTECTED DASHBOARD
+app.get("/protected/dashboard", authenticateToken, (req, res) => {
+    return res.status(200).json({
+        message: "Welcome to your protected dashboard.",
+        user: {
+            id: req.user.id,
+            email: req.user.email
+        }
+    });
+});
+
+// FORMAT TASK
 function formatTask(task) {
     return {
         id: task.id,
@@ -25,7 +204,15 @@ app.get("/", (req, res) => {
     res.json({
         name: "Task API",
         version: "1.0",
-        endpoints: ["/tasks"]
+        endpoints: [
+            "/tasks",
+            "/auth/signup",
+            "/auth/login",
+            "/auth/logout",
+            "/public/info",
+            "/protected/profile",
+            "/protected/dashboard"
+        ]
     });
 });
 
@@ -55,7 +242,9 @@ app.get("/tasks/:id", async (req, res, next) => {
         const id = Number(req.params.id);
 
         if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({ error: "Invalid task ID." });
+            return res.status(400).json({
+                error: "Invalid task ID."
+            });
         }
 
         const task = await taskRepository.findById(id);
@@ -100,7 +289,9 @@ app.put("/tasks/:id", async (req, res, next) => {
         const id = Number(req.params.id);
 
         if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({ error: "Invalid task ID." });
+            return res.status(400).json({
+                error: "Invalid task ID."
+            });
         }
 
         const { title, done } = req.body;
@@ -140,7 +331,9 @@ app.delete("/tasks/:id", async (req, res, next) => {
         const id = Number(req.params.id);
 
         if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({ error: "Invalid task ID." });
+            return res.status(400).json({
+                error: "Invalid task ID."
+            });
         }
 
         const deleted = await taskRepository.remove(id);
@@ -160,7 +353,10 @@ app.delete("/tasks/:id", async (req, res, next) => {
 // ERROR HANDLER
 app.use((error, req, res, next) => {
     console.error(error);
-    res.status(500).json({ error: "Internal server error." });
+
+    res.status(500).json({
+        error: "Internal server error."
+    });
 });
 
 // START SERVER

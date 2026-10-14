@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Task API",
-    "version": "1.0",
-    "description": "A simple CRUD API for managing tasks."
+    "version": "2.0",
+    "description": "Task CRUD API with Supabase authentication and protected routes."
   },
   "servers": [
     {
@@ -27,6 +27,143 @@
         "responses": {
           "200": {
             "description": "Server is healthy"
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "summary": "Register a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "YourPassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully"
+          },
+          "400": {
+            "description": "Invalid input or registration failed"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Log in and receive access tokens",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful; returns access and refresh tokens"
+          },
+          "400": {
+            "description": "Email and password are required"
+          },
+          "401": {
+            "description": "Invalid login credentials"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Log out the authenticated user",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully logged out"
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          }
+        }
+      }
+    },
+    "/public/info": {
+      "get": {
+        "summary": "Get public information",
+        "responses": {
+          "200": {
+            "description": "Public information"
+          }
+        }
+      }
+    },
+    "/protected/profile": {
+      "get": {
+        "summary": "Get the authenticated user's profile",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile returned successfully"
+          },
+          "401": {
+            "description": "Missing, invalid, or expired access token"
+          }
+        }
+      }
+    },
+    "/protected/dashboard": {
+      "get": {
+        "summary": "Get protected dashboard information",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard information returned successfully"
+          },
+          "401": {
+            "description": "Missing, invalid, or expired access token"
           }
         }
       }
@@ -109,7 +246,7 @@
         }
       },
       "delete": {
-        "summary": "Delete a task",
+        "summary": "Delete one task",
         "parameters": [
           {
             "$ref": "#/components/parameters/TaskId"
@@ -127,6 +264,14 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter your access token obtained from POST /auth/login."
+      }
+    },
     "parameters": {
       "TaskId": {
         "name": "id",
@@ -141,9 +286,7 @@
     "schemas": {
       "TaskInput": {
         "type": "object",
-        "required": [
-          "title"
-        ],
+        "required": ["title"],
         "properties": {
           "title": {
             "type": "string",

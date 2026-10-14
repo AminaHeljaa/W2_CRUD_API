@@ -1,32 +1,40 @@
-# 🚀 W2 CRUD API — Containerized Task API with PostgreSQL
+# 🚀 W2 CRUD API — PostgreSQL, Docker & Supabase Authentication
 
-A simple REST API built with Node.js and Express for managing a to-do list.
+A REST API built with Node.js and Express for managing tasks. The project uses PostgreSQL for persistent data storage, Docker Compose for containerization, and Supabase Authentication for user registration, login, and protected endpoints.
 
-This project implements the complete CRUD cycle:
-
-**Create → Read → Update → Delete**
-
-The application uses PostgreSQL for persistent task storage and Docker Compose to run the API and database together. The API endpoints remain the same, while the database layer has been updated to use PostgreSQL instead of SQLite.
+The API combines task management with authentication and authorization, while Swagger UI provides interactive API documentation.
 
 ## ✨ Features
 
-- ✅ REST API built with Express
-- ✅ Create, read, update, and delete tasks
-- ✅ Read all tasks or a single task
-- ✅ Input validation
-- ✅ Proper HTTP status codes
-- ✅ Swagger UI documentation
-- ✅ OpenAPI specification
-- ✅ PostgreSQL database
-- ✅ SQL-based CRUD operations
-- ✅ Automatic database initialization
-- ✅ Automatic table creation
-- ✅ Dockerized Node.js application
-- ✅ Docker Compose for the application and database
-- ✅ Persistent database storage using a Docker volume
-- ✅ Environment variables for database configuration
-- ✅ `.env.example` for configuration reference
-- ✅ Git and GitHub version control
+### Task Management
+- REST API built with Express
+- Complete CRUD operations: Create, Read, Update, Delete
+- Retrieve all tasks or a single task
+- Input validation and appropriate HTTP status codes
+- PostgreSQL database integration
+- Separate PostgreSQL repository layer
+- Automatic database and table initialization
+- Persistent database storage using a Docker volume
+
+### Authentication & Authorization
+- User registration with Supabase Auth
+- Login with email and password
+- Access token and refresh token responses
+- Access token verification using Supabase
+- Reusable Express authentication middleware
+- Protected user profile and dashboard endpoints
+- Public information endpoint
+- Logout endpoint
+- HTTP Bearer token authentication
+
+### API Documentation & Infrastructure
+- Swagger UI at `/docs`
+- OpenAPI specification with Bearer authentication
+- Dockerized Node.js application
+- Docker Compose for the application and PostgreSQL
+- Environment-based configuration
+- `.env.example` for configuration reference
+- Git and GitHub version control
 
 ## 🛠️ Technologies
 
@@ -36,10 +44,12 @@ The application uses PostgreSQL for persistent task storage and Docker Compose t
 | Node.js | JavaScript runtime |
 | Express | Web framework |
 | PostgreSQL | Relational database |
-| `pg` | PostgreSQL client for Node.js |
+| `pg` | PostgreSQL client |
+| Supabase Auth | User authentication |
+| `@supabase/supabase-js` | Supabase JavaScript SDK |
 | `dotenv` | Environment variable configuration |
 | Docker | Application containerization |
-| Docker Compose | Running the application and database together |
+| Docker Compose | Running application services |
 | Swagger UI | Interactive API documentation |
 | OpenAPI | API specification |
 | Git | Version control |
@@ -54,6 +64,7 @@ Install the following tools:
 - [Node.js](https://nodejs.org/)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Git](https://git-scm.com/)
+- A [Supabase](https://supabase.com/) project with its API URL and publishable/anon key
 
 ### Clone the repository
 
@@ -64,65 +75,65 @@ cd W2_CRUD_API
 
 ### Configure environment variables
 
-Create your local `.env` file using `.env.example` as a reference.
+Create a local `.env` file in the project root using `.env.example` as a reference.
 
 Example configuration:
 
 ```env
 PORT=3000
+
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=your_password
 POSTGRES_DB=tasks
 DATABASE_URL=postgresql://postgres:your_password@localhost:5432/tasks
+
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your_supabase_publishable_or_anon_key
 ```
 
-Replace `your_password` with your own PostgreSQL password.
+Replace the example values with your actual local database credentials and Supabase project settings.
 
-**Important:** The `.env` file contains local configuration and credentials. It should not be committed to Git. The `.env.example` file contains example values for other developers.
+**Security:** Never commit `.env` or expose secret credentials in the repository. The `.env.example` file should contain placeholders, not real keys or passwords.
+
+The `.env` file is excluded from Git tracking.
 
 ## 🐳 Running with Docker Compose
 
 Make sure Docker Desktop is running.
 
-Build the application image and start the application and database:
+Build the application image and start the services:
 
 ```bash
 docker compose up --build -d
 ```
 
-This command:
-
-- Builds the Node.js application image.
-- Starts the PostgreSQL database.
-- Starts the Express API.
-- Creates the Docker network used by both services.
-- Creates a persistent Docker volume for PostgreSQL data.
-
-Check the container status:
+Check the service status:
 
 ```bash
 docker compose ps
 ```
 
-The application should be available at:
-
-- API: http://localhost:3000
-- Swagger UI: http://localhost:3000/docs
-- PostgreSQL: `localhost:5432`
-
-The database should report a healthy status when its health check succeeds.
-
-### View application logs
+View application logs:
 
 ```bash
 docker compose logs app
 ```
 
-To view database logs:
+View database logs:
 
 ```bash
 docker compose logs db
 ```
+
+The application should be available at:
+
+- **API:** http://localhost:3000
+- **Swagger UI:** http://localhost:3000/docs
+- **Health check:** http://localhost:3000/health
+
+The PostgreSQL database is available on port `5432` for local database access.
+
+> Ensure that the environment variables required by the application are available to the app container through the Compose configuration.
 
 ### Stop the application
 
@@ -130,27 +141,19 @@ docker compose logs db
 docker compose down
 ```
 
-This stops and removes the containers and network but preserves the database volume.
+This stops and removes the containers while preserving the Compose-managed database volume.
 
-To start the application again:
+To start the services again:
 
 ```bash
 docker compose up -d
 ```
 
-**Do not use `docker compose down -v` if you want to keep the stored tasks.** The `-v` option removes the Compose-managed volumes.
+Do not use `docker compose down -v` if you want to preserve the database volume and stored tasks.
 
 ## 🗄️ Database
 
-The application uses PostgreSQL instead of SQLite.
-
-The database configuration is stored in environment variables, and the application connects to PostgreSQL through the `pg` library.
-
-The database name is:
-
-```text
-tasks
-```
+The application uses PostgreSQL for persistent task storage.
 
 The database schema is defined in:
 
@@ -158,15 +161,13 @@ The database schema is defined in:
 db/schema.sql
 ```
 
-The initialization script creates the `tasks` table and inserts the example tasks when the database is initialized for the first time.
-
-The table contains the following columns:
+The `tasks` table contains:
 
 | Column | Type | Description |
 |---|---|---|
 | `id` | Integer | Unique task identifier |
 | `title` | Text | Task title |
-| `done` | Boolean | Indicates whether the task is completed |
+| `done` | Boolean | Task completion status |
 
 Example task:
 
@@ -178,120 +179,194 @@ Example task:
 }
 ```
 
+The PostgreSQL repository separates database operations from the Express routes.
+
 ### Persistent storage
 
 PostgreSQL data is stored in a Docker volume named `taskdata`.
 
-The volume is mounted at `/var/lib/postgresql` in the PostgreSQL 18 container.
+The volume preserves database records when the application containers are stopped or recreated, as long as the volume is not deleted.
 
-This allows task data to survive container restarts and container recreation, as long as the volume is preserved.
+## 🔐 Authentication
 
-The application uses a PostgreSQL repository to perform database operations. This separates the database logic from the API routes and makes the storage layer easier to maintain.
+The application uses Supabase Auth to register and authenticate users.
 
-## 📖 Swagger UI
+After a successful login, the API returns an access token and a refresh token. The access token is used to access protected endpoints.
 
-Interactive API documentation is available at:
+Protected routes use reusable Express middleware to extract the Bearer token and validate it with Supabase before returning the requested data.
 
-http://localhost:3000/docs
+### Authentication flow
 
-Swagger UI allows you to test the API endpoints directly from your browser using the **Try it out** button.
+1. Register a user using `/auth/signup`.
+2. Log in using `/auth/login`.
+3. Copy the returned `access_token`.
+4. Open Swagger UI and click **Authorize**.
+5. Enter the access token.
+6. Execute protected requests.
 
-The API documentation is based on the OpenAPI specification.
+The access token should be kept private and should not be committed to GitHub.
 
-## 🔗 API Endpoints
+### Authentication endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/` | Returns API information |
-| GET | `/health` | Checks whether the server is running |
-| GET | `/tasks` | Returns all tasks |
-| GET | `/tasks/:id` | Returns a single task |
-| POST | `/tasks` | Creates a new task |
-| PUT | `/tasks/:id` | Updates an existing task |
-| DELETE | `/tasks/:id` | Deletes a task |
+| POST | `/auth/signup` | Register a new user |
+| POST | `/auth/login` | Log in and receive tokens |
+| POST | `/auth/logout` | Log out the authenticated user |
 
-## 🔄 CRUD Operations
-
-### 1. Get API information
+#### Register a user
 
 **Request**
 
 ```http
-GET /
+POST /auth/signup
+Content-Type: application/json
 ```
 
-Returns information about the API and its available endpoints.
-
-### 2. Health check
-
-**Request**
-
-```http
-GET /health
-```
-
-Example response:
+Request body:
 
 ```json
 {
-  "status": "ok"
+  "email": "user@example.com",
+  "password": "YourPassword123"
 }
 ```
 
-Status: `200 OK`
+Expected status codes:
 
-### 3. Get all tasks
+- `201 Created` — registration successful
+- `400 Bad Request` — missing input or registration error
+
+Supabase email confirmation settings may affect whether a session is immediately created during registration.
+
+#### Log in
 
 **Request**
 
 ```http
-GET /tasks
+POST /auth/login
+Content-Type: application/json
 ```
 
-Returns all tasks stored in PostgreSQL.
-
-Example response:
+Request body:
 
 ```json
-[
-  {
-    "id": 1,
-    "title": "Learn REST APIs",
-    "done": false
-  },
-  {
-    "id": 2,
-    "title": "Build CRUD API",
-    "done": false
-  },
-  {
-    "id": 3,
-    "title": "Test API endpoints",
-    "done": true
-  }
-]
+{
+  "email": "user@example.com",
+  "password": "YourPassword123"
+}
 ```
 
-Status: `200 OK`
+A successful response includes the user's access token and refresh token.
 
-### 4. Get a single task
+Example response structure:
+
+```json
+{
+  "message": "Login successful.",
+  "access_token": "<access-token>",
+  "refresh_token": "<refresh-token>",
+  "user": {
+    "id": "<user-id>",
+    "email": "user@example.com"
+  }
+}
+```
+
+Expected status codes:
+
+- `200 OK` — login successful
+- `400 Bad Request` — missing email or password
+- `401 Unauthorized` — invalid credentials
+
+#### Log out
 
 **Request**
 
 ```http
-GET /tasks/1
+POST /auth/logout
 ```
 
-Returns the task with ID `1`.
+This endpoint requires a valid Bearer token.
 
-If the task does not exist, the API returns `404 Not Found`.
+Expected status codes:
 
-### 5. Create a task
+- `204 No Content` — logout request successful
+- `401 Unauthorized` — missing or invalid token
+
+## 🔒 Public and Protected Routes
+
+### Public information
+
+**Request**
+
+```http
+GET /public/info
+```
+
+This endpoint is available without authentication.
+
+Expected status: `200 OK`
+
+### User profile
+
+**Request**
+
+```http
+GET /protected/profile
+```
+
+Returns information about the authenticated user after token verification.
+
+Expected status codes:
+
+- `200 OK` — valid access token
+- `401 Unauthorized` — missing, invalid, or expired token
+
+### Protected dashboard
+
+**Request**
+
+```http
+GET /protected/dashboard
+```
+
+This endpoint demonstrates the reusable authentication middleware on an additional protected route.
+
+Expected status codes:
+
+- `200 OK` — valid access token
+- `401 Unauthorized` — missing, invalid, or expired token
+
+### Bearer authentication
+
+Protected requests use the following HTTP header:
+
+```http
+Authorization: Bearer <access-token>
+```
+
+The middleware verifies the token with Supabase and makes the authenticated user available to the route handler.
+
+## 🔗 Task API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/` | Get API information |
+| GET | `/health` | Check application/database health |
+| GET | `/tasks` | Retrieve all tasks |
+| GET | `/tasks/:id` | Retrieve one task |
+| POST | `/tasks` | Create a task |
+| PUT | `/tasks/:id` | Update a task |
+| DELETE | `/tasks/:id` | Delete a task |
+
+### Create a task
 
 **Request**
 
 ```http
 POST /tasks
+Content-Type: application/json
 ```
 
 Request body:
@@ -302,18 +377,18 @@ Request body:
 }
 ```
 
-The API validates the title, creates the task, assigns an ID, and sets `done` to `false` by default.
+Expected status codes:
 
-Successful response: `201 Created`
+- `201 Created` — task created
+- `400 Bad Request` — invalid input
 
-An empty or missing title returns `400 Bad Request`.
-
-### 6. Update a task
+### Update a task
 
 **Request**
 
 ```http
 PUT /tasks/1
+Content-Type: application/json
 ```
 
 Request body:
@@ -325,13 +400,13 @@ Request body:
 }
 ```
 
-The API updates the task in PostgreSQL.
+Expected status codes:
 
-Successful response: `200 OK`
+- `200 OK` — task updated
+- `400 Bad Request` — invalid input
+- `404 Not Found` — task does not exist
 
-If the task does not exist, the API returns `404 Not Found`.
-
-### 7. Delete a task
+### Delete a task
 
 **Request**
 
@@ -339,90 +414,101 @@ If the task does not exist, the API returns `404 Not Found`.
 DELETE /tasks/1
 ```
 
-Deletes the specified task.
+Expected status codes:
 
-Successful response: `204 No Content`
+- `204 No Content` — task deleted
+- `404 Not Found` — task does not exist
 
-If the task does not exist, the API returns `404 Not Found`.
+## 📖 Swagger UI
 
-## 📊 HTTP Status Codes
+Interactive API documentation is available at:
 
-| Status Code | Meaning | Usage |
-|---|---|---|
-| `200` | OK | Successful GET or PUT |
-| `201` | Created | Task successfully created |
-| `204` | No Content | Task successfully deleted |
-| `400` | Bad Request | Invalid input |
-| `404` | Not Found | Task does not exist |
+**http://localhost:3000/docs**
 
-## 🧪 Testing the API
+Swagger UI provides a convenient way to test authentication and task endpoints without requiring a separate API client.
 
-The API can be tested using:
+For protected routes:
 
-- PowerShell and HTTP requests
-- A web browser
-- Swagger UI
-- Docker Compose logs
-- PostgreSQL queries
+1. Execute `POST /auth/login`.
+2. Copy the `access_token` from the response.
+3. Click **Authorize** in Swagger UI.
+4. Enter the access token.
+5. Click **Authorize** and close the dialog.
+6. Execute `/protected/profile` or `/protected/dashboard`.
 
-Example PowerShell requests:
+The OpenAPI specification defines HTTP Bearer authentication for protected endpoints.
 
-Check the API:
+### Swagger screenshot
+
+Add a screenshot showing the Swagger documentation, including the authentication endpoints, protected routes, and the **Authorize** button.
+
+Save the image at:
+
+```text
+docs/swagger-auth.png
+```
+
+Then include it in this section:
+
+![Swagger UI showing authentication endpoints and protected routes](swagger-auth.png)
+
+## 🧪 Testing
+
+The API can be tested using Swagger UI, PowerShell, and Docker Compose.
+
+### Check the API
 
 ```powershell
 Invoke-RestMethod http://localhost:3000/health
 ```
 
-Get all tasks:
+### Get all tasks
 
 ```powershell
 Invoke-RestMethod http://localhost:3000/tasks
 ```
 
-Create a task:
+### Test authentication
 
-```powershell
-$body = @{
-    title = "Docker persistence test"
-} | ConvertTo-Json
+Use Swagger UI to verify the following scenarios:
 
-Invoke-RestMethod `
-    -Uri http://localhost:3000/tasks `
-    -Method Post `
-    -ContentType "application/json" `
-    -Body $body
-```
+| Test | Expected result |
+|---|---|
+| Register with valid input | `201` when registration succeeds |
+| Login with valid credentials | `200` |
+| Login with invalid credentials | `401` |
+| Access public information without a token | `200` |
+| Access profile without a token | `401` |
+| Access profile with a valid token | `200` |
+| Access dashboard without a token | `401` |
+| Access dashboard with a valid token | `200` |
+| Submit a logout request with a valid token | `204` |
 
-### Testing database persistence
-
-Database persistence can be tested by creating a task and restarting the containers.
+### Test database persistence
 
 1. Create a task using `POST /tasks`.
-2. Run `docker compose down`.
-3. Start the application again with `docker compose up -d`.
-4. Run `Invoke-RestMethod http://localhost:3000/tasks`.
-5. Confirm that the previously created task is still present.
+2. Stop the containers with `docker compose down`.
+3. Start them again with `docker compose up -d`.
+4. Retrieve the tasks using `GET /tasks`.
+5. Confirm that the created task remains in the database.
 
-Do not add `-v` to the `docker compose down` command, because that would remove the Compose-managed volume.
-
-The persistence test confirms that database records are stored outside the application container and remain available when the containers are recreated.
+Do not remove the Docker volume during this test.
 
 ## 📁 Project Structure
 
 ```text
 W2_CRUD_API/
-│
 ├── db/
 │   ├── pool.js
 │   └── schema.sql
-│
 ├── repositories/
 │   └── postgresTaskRepository.js
-│
 ├── server.js
 ├── db.js
+├── supabase.js
 ├── Dockerfile
 ├── compose.yaml
+├── openapi.json
 ├── .dockerignore
 ├── .env.example
 ├── .gitignore
@@ -431,103 +517,64 @@ W2_CRUD_API/
 └── README.md
 ```
 
-The `.env` file is used for local configuration and is excluded from Git. The `node_modules/` directory is also excluded from Git and is not copied into the Docker image when excluded by `.dockerignore`.
+The `.env` file contains local configuration and is excluded from Git. The `node_modules/` directory is also excluded from version control.
 
 ## 🐳 Docker Architecture
 
-The application uses two services:
-
-**App service**
-- Runs the Node.js and Express API.
-- Exposes port `3000`.
-- Connects to PostgreSQL using the Docker service hostname `db`.
-
-**Database service**
-- Runs PostgreSQL 18.
-- Exposes port `5432` for local database access.
-- Uses the `taskdata` Docker volume for persistent storage.
-- Initializes the database using `db/schema.sql`.
-
-Architecture:
-
 ```text
-Client / Browser
-       |
-       v
-Express REST API
-       |
-       v
+Client / Swagger UI
+        |
+        v
+Node.js + Express API
+        |
+        +---- Supabase Auth
+        |
+        v
 PostgreSQL Repository
-       |
-       v
+        |
+        v
 PostgreSQL Database
-       |
-       v
+        |
+        v
 Docker Volume (taskdata)
 ```
 
-Docker Compose manages the services and their shared network. Within the Docker network, the application connects to the database using the hostname `db`, rather than `localhost`.
+Docker Compose manages the application and database services. Inside the Compose network, the application connects to PostgreSQL using the database service hostname configured in `compose.yaml`.
+
+Supabase handles user authentication, while PostgreSQL stores the application's task data.
 
 ## 🔄 Development Stages
 
-### Stage 1 — Express REST API
+### Stage 1 — Express CRUD API
+Implemented task management endpoints, input validation, and HTTP status codes.
 
-Created the Node.js and Express API with task CRUD endpoints, validation, HTTP status codes, and API documentation.
-
-### Stage 2 — SQLite Database
-
-Replaced the in-memory task list with SQLite storage. Implemented SQL-based CRUD operations and automatic database and table creation.
+### Stage 2 — SQLite Storage
+Introduced persistent SQLite storage and database-backed CRUD operations.
 
 ### Stage 3 — PostgreSQL Migration
-
-Replaced SQLite with PostgreSQL while keeping the API endpoints and client-facing behavior consistent.
-
-Added:
-- PostgreSQL connection pool.
-- PostgreSQL task repository.
-- SQL schema initialization.
-- Environment-based database configuration.
+Migrated task storage to PostgreSQL and added a repository layer and SQL initialization.
 
 ### Stage 4 — Docker Containerization
+Added Dockerfile, Docker Compose, environment configuration, health checks, and persistent database storage.
 
-Added:
-- `Dockerfile` for the application.
-- `compose.yaml` for the application and PostgreSQL services.
-- `.dockerignore` to exclude unnecessary files from the build context.
-- Persistent Docker volume for database storage.
-- Health check for the PostgreSQL service.
+### Stage 5 — Supabase Authentication
+Added user registration, login, token verification, reusable authentication middleware, protected routes, and logout.
 
-### Stage 5 — Testing and GitHub
+### Stage 6 — API Documentation and Testing
+Updated the OpenAPI specification, configured Bearer authentication in Swagger UI, and tested the public, protected, and task endpoints.
 
-Built and started the Docker containers, checked the health of the database, tested API requests, and verified task persistence after restarting the containers.
+## 🔐 Security Notes
 
-The updated project was committed and pushed to GitHub.
-
-## ✅ Assignment Requirements
-
-- ✅ Existing CRUD API endpoints maintained.
-- ✅ PostgreSQL used for task storage.
-- ✅ SQL-based CRUD operations implemented.
-- ✅ Database schema initialization configured.
-- ✅ Environment variables used for database configuration.
-- ✅ `.env.example` provided.
-- ✅ Sensitive `.env` file excluded from Git tracking.
-- ✅ Application containerized with Docker.
-- ✅ Docker Compose configured for the application and database.
-- ✅ PostgreSQL data persisted using a Docker volume.
-- ✅ Application and database containers started successfully.
-- ✅ Database health check passed.
-- ✅ API requests tested.
-- ✅ Changes pushed to GitHub.
+- Keep `.env` out of Git.
+- Use placeholders in `.env.example`.
+- Never publish access tokens, refresh tokens, passwords, or private keys.
+- Use only the appropriate Supabase publishable/anon key for this application configuration; never expose a Supabase service-role secret.
+- Validate authentication on the server rather than relying on the Swagger UI.
 
 ## 🎯 Conclusion
 
-This project demonstrates how to build a REST API with Express, connect it to a relational database, and run the complete application stack using Docker Compose.
+This project demonstrates the development of a REST API with Express, persistent PostgreSQL storage, Docker containerization, and Supabase authentication.
 
-The storage layer was migrated from SQLite to PostgreSQL while maintaining the existing API endpoints.
+It combines CRUD functionality with public and protected endpoints, reusable token verification middleware, and interactive Swagger documentation.
 
-Containerization makes the application easier to run in a consistent environment, while the PostgreSQL Docker volume ensures that task data can persist independently of the application containers.
-
-The final architecture separates the API, repository, database, and infrastructure configuration, providing a foundation for further development and deployment.
-
-**GitHub repository:** https://github.com/AminaHeljaa/W2_CRUD_API
+**GitHub repository:** [AminaHeljaa/W2_CRUD_API](https://github.com/AminaHeljaa/W2_CRUD_API)

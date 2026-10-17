@@ -1,0 +1,23 @@
+
+{
+  "name": "the-polite-scraper",
+  "version": "1.0.0",
+  "description": "A polite Node.js scraper for Books to Scrape with caching, validation and JSON reports.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test:failure": "node src/index.js --test-failure"
+  },
+  "keywords": [
+    "web-scraping",
+    "nodejs",
+    "cheerio",
+    "zod"
+  ],
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "zod": "^4.6.7"
+  }
+}

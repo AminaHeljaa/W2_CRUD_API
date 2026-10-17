@@ -3,3 +3,7 @@ tasks.sqbpro
 tasks-backup.db
 .env
 .idea/
+# Scraper dependencies and generated files
+scraper/node_modules/
+scraper/cache/
+scraper/output/
